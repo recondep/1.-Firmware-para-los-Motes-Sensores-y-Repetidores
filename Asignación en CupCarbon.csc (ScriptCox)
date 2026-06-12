@@ -1,0 +1,38 @@
+// ======================================================================
+// FIRMWARE: sensor_edge.csc (Firme para Motes Inalámbricos)
+// Ecosistema: Smart Farming - Universidad Estatal Amazónica
+// Región: Pastaza, Ecuador
+// ======================================================================
+
+loop
+    // 1. ADQUISICIÓN DE DATOS MICROCLIMÁTICOS
+    // Simulación de lectura del sensor analógico de humedad de suelo
+    atread hum_suelo 
+                         
+    if(hum_suelo < 400) 
+        print "Alerta: Humedad de suelo crítica en Pastaza" 
+    end 
+     
+    // 2. CONSTRUCCIÓN DEL PAQUETE DE TELEMETRÍA
+    // Sintaxis: data [Nombre_Estructura] [Cabecera] [ID_Nodo_Origen] [Variables]
+    data msg "DATA" id hum_suelo 
+     
+    // 3. PIPELINE DE ENRUTAMIENTO MULTISALTO (Multi-hop)
+    // Direccionamiento lógico basado en la topología CupCarbon hacia Gateway (ID: 1)
+    if(id == 8) 
+        send msg 5
+    else 
+        if(id == 5) 
+            send msg 1
+        else 
+            // Nodos con línea de vista directa o adyacentes transmiten al Gateway
+            send msg 1
+        end 
+    end 
+     
+    print "Transmisión exitosa. Entrando en modo Deep Sleep..." 
+     
+    // 4. RUTINA DE DUTY CYCLING ESTRICTO
+    // Apaga el transceptor de RF y duerme el microcontrolador por 5000 ms
+    // Reduce la corriente promedio del nodo a 2.1 mA para optimizar la batería
+    delay 5000
