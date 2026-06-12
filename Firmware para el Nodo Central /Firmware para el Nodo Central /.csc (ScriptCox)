@@ -1,0 +1,30 @@
+// ======================================================================
+// FIRMWARE: gateway_base.csc (Firmware para Estación Base / Coordinador)
+// Ecosistema: Smart Farming - Universidad Estatal Amazónica
+// Rol: Concentrador de datos y conversión de protocolo (802.15.4 -> Ethernet/WiFi)
+// ======================================================================
+
+loop
+    // 1. ESCUCHA ACTIVA DEL MEDIO (Transceptor en modo Rx continuo)
+    // El Gateway de la planta no aplica Duty Cycling (alimentación permanente)
+    wait
+    
+    // 2. PROCESAMIENTO DE TRAMAS RECIBIDAS
+    // Lee el buffer de entrada de radiofrecuencia
+    read paquete
+    
+    // 3. EXTRACCIÓN DE PAYLOAD Y FILTRADO
+    // El comando rdata desestructura el paquete recibido [Cabecera, ID, Lectura]
+    rdata paquete cabecera id_origen lectura_humedad
+    
+    // Validación de integridad de la trama IoT
+    if(cabecera == "DATA")
+        print "--- NUEVA TELEMETRÍA RECIBIDA ---"
+        print "Origen (Mote ID): " id_origen
+        print "Humedad de Suelo: " lectura_humedad " unidades analógicas"
+        print "---------------------------------"
+        
+        // Aquí CupCarbon simula la salida de datos por puerto serial/red hacia el ERP
+    else
+        print "Aviso: Trama descartada o ruido espectral detectado en la banda."
+    end
